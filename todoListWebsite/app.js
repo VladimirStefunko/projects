@@ -11,10 +11,24 @@ const firstTask = document.querySelector('.task');
 const firstCheckBox = document.querySelector('input');
 firstCheckBox.disabled = true;
 
+const body = document.querySelector('body');
+
 popUpButton.addEventListener('click', function(){
+    body.classList.toggle('blur');
+    
     popUp.classList.toggle('open-popup');
     taskInput.value = '';
 })
+
+document.addEventListener('click', function(event) {
+    if (!popUp.contains(event.target) && !popUpButton.contains(event.target)) {
+        if (body.classList.contains('blur')) {
+            body.classList.remove('blur');
+            popUp.classList.remove('open-popup');
+        }
+    }
+})
+
 
 let i = 1;
 addTaskButton.addEventListener('click', function(){
@@ -71,12 +85,5 @@ addTaskButton.addEventListener('click', function(){
     }
     
     popUp.classList.toggle('open-popup');
+    body.classList.toggle('blur');
 })
-
-
-
-
-
-
-
-
