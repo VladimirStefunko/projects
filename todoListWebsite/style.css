@@ -61,6 +61,12 @@ button {
     background-color: white;
     border-radius: 7%;
     z-index: 1000;
+    filter: blur(0px);
+}
+
+body.blur .container > *:not(.popup) {
+    filter: blur(3px);
+    pointer-events: none;
 }
 
 .open-popup {
