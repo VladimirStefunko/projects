@@ -7,18 +7,33 @@ const popUp = document.querySelector('.popup');
 const addTaskButton = document.querySelector('#addTaskButton');
 const taskInput = document.querySelector('#taskInput');
 
-const firstTask = document.querySelector('.task');
-const firstCheckBox = document.querySelector('input');
-firstCheckBox.disabled = true;
-
 const body = document.querySelector('body');
+
+let i = 1;
+
+function saveTasks() {
+    const tasks = [];
+    document.querySelectorAll('.task').forEach(task => {
+        tasks.push({
+            text: task.querySelector('.taskText').innerText,
+            checked: task.querySelector('input[type="checkbox"]').checked
+        });
+    });
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    tasks.forEach(task => {
+        addTask(task.text, task.checked);
+    });
+}
 
 popUpButton.addEventListener('click', function(){
     body.classList.toggle('blur');
-    
     popUp.classList.toggle('open-popup');
     taskInput.value = '';
-})
+});
 
 document.addEventListener('click', function(event) {
     if (!popUp.contains(event.target) && !popUpButton.contains(event.target)) {
@@ -27,63 +42,75 @@ document.addEventListener('click', function(event) {
             popUp.classList.remove('open-popup');
         }
     }
-})
+});
 
+function addTask(text, checked = false) {
+    const newDiv = document.createElement('div');
+    newDiv.classList.add('task');
 
-let i = 1;
-addTaskButton.addEventListener('click', function(){
-    if (taskInput.value.trim() !== ''){
-        const newDiv = document.createElement('div');
-        newDiv.classList.add('task');
+    const textDiv = document.createElement('div');
+    textDiv.innerText = text;
+    textDiv.classList.add('taskText');
+    
+    const round = document.createElement('div');
+    round.classList.add('round');
 
-        const textDiv = document.createElement('div');
-        textDiv.innerText = taskInput.value;
-        textDiv.classList.add('taskText');
-        
-        const round = document.createElement('div');
-        round.classList.add('round');
-
-        const checkBox = document.createElement('input');
-        checkBox.setAttribute('type', 'checkbox');
-        checkBox.setAttribute('id', 'checkbox'+i);
-        
-        checkBox.addEventListener('change', function() {
-            if (this.checked) {
-              const temporary = this.parentElement.parentElement;
-              temporary.remove();
-              containerDiv.append(temporary);
-            } else {
-                const temporary = this.parentElement.parentElement;
-                temporary.remove();
-                containerDivH1.insertAdjacentElement('afterend', newDiv);
-            }
-          });
-        
-
-
-        const label = document.createElement('label');
-        label.setAttribute('for', 'checkbox'+i);
-        
-        round.append(checkBox);
-        round.append(label);
-        
-        if (i === 1){
-            const temporary = firstTask;
-            firstCheckBox.checked = true;
+    const checkBox = document.createElement('input');
+    checkBox.setAttribute('type', 'checkbox');
+    checkBox.setAttribute('id', 'checkbox'+i);
+    checkBox.checked = checked;
+    
+    checkBox.addEventListener('change', function() {
+        if (this.checked) {
+            const temporary = this.parentElement.parentElement;
             temporary.remove();
             containerDiv.append(temporary);
+        } else {
+            const temporary = this.parentElement.parentElement;
+            temporary.remove();
+            containerDivH1.insertAdjacentElement('afterend', newDiv);
         }
+        saveTasks();
+    });
 
-        i++;
+    const label = document.createElement('label');
+    label.setAttribute('for', 'checkbox'+i);
+    
+    round.append(checkBox);
+    round.append(label);
+    
+    i++;
 
-        newDiv.append(round);
-        newDiv.append(textDiv);
-        
-        containerDivH1.insertAdjacentElement('afterend', newDiv);
-        
+    newDiv.append(round);
+    newDiv.append(textDiv);
+
+    deleteButton = document.createElement('button');
+    deleteButton.innerHTML = '╳';
+    deleteButton.classList.add('deleteButton')
+    deleteButton.addEventListener('click', function() {
+        newDiv.remove();
+        saveTasks();
+    });
+
+    newDiv.append(deleteButton);
+    
+    if (checkBox.checked) {
+        containerDiv.append(newDiv);
+    }
+    else {
+        popUpButton.insertAdjacentElement('beforebegin', newDiv);
+    }
+
+    saveTasks();
+}
+
+addTaskButton.addEventListener('click', function(){
+    if (taskInput.value.trim() !== ''){
+        addTask(taskInput.value);
         taskInput.value = '';
     }
-    
     popUp.classList.toggle('open-popup');
     body.classList.toggle('blur');
-})
+});
+
+document.addEventListener('DOMContentLoaded', loadTasks);
